@@ -1,5 +1,8 @@
 package dev.bug.timer.services;
 
+import dev.bug.timer.info.TimerInfo;
+import dev.bug.timer.utils.TimerUtils;
+import org.quartz.Job;
 import org.quartz.Scheduler;
 import org.quartz.SchedulerException;
 import org.slf4j.Logger;
@@ -20,6 +23,16 @@ public class SchedulerService {
     @Autowired
     public SchedulerService(Scheduler scheduler) {
         this.scheduler = scheduler;
+    }
+
+    public void schedule(Class<? extends Job> jobType, TimerInfo info) {
+        var jobDetail = TimerUtils.buildJobDetails(jobType, info);
+        var trigger = TimerUtils.buildTrigger(jobType, info);
+        try {
+            scheduler.scheduleJob(jobDetail, trigger);
+        } catch (SchedulerException e) {
+            LOG.error(e.getMessage(), e);
+        }
     }
 
     @PostConstruct

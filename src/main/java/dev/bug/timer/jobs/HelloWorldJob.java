@@ -7,9 +7,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 @Component
-public class HelloJob implements Job {
+public class HelloWorldJob implements Job {
 
-    private static final Logger LOG = LoggerFactory.getLogger(HelloJob.class);
+    private static final Logger LOG = LoggerFactory.getLogger(HelloWorldJob.class);
 
     @Override
     public void execute(JobExecutionContext context) {
