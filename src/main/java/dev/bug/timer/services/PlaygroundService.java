@@ -4,6 +4,8 @@ import dev.bug.timer.info.TimerInfo;
 import dev.bug.timer.jobs.HelloWorldJob;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 public class PlaygroundService {
 
@@ -20,5 +22,13 @@ public class PlaygroundService {
         info.setInitialOffsetMs(1000);
         info.setCallbackData("Callback data");
         schedulerService.schedule(HelloWorldJob.class, info);
+    }
+
+    public List<TimerInfo> getAllRunningTimers() {
+        return schedulerService.getAllRunningTimers();
+    }
+
+    public TimerInfo getRunningTimer(String timerId) {
+        return schedulerService.getRunningTimer(timerId);
     }
 }

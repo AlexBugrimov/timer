@@ -1,5 +1,6 @@
 package dev.bug.timer.jobs;
 
+import dev.bug.timer.info.TimerInfo;
 import org.quartz.Job;
 import org.quartz.JobExecutionContext;
 import org.slf4j.Logger;
@@ -13,6 +14,8 @@ public class HelloWorldJob implements Job {
 
     @Override
     public void execute(JobExecutionContext context) {
-        LOG.info("Hello world...");
+        var jobDataMap = context.getJobDetail().getJobDataMap();
+        var info = (TimerInfo) jobDataMap.get(HelloWorldJob.class.getSimpleName());
+        LOG.info(info.getCallbackData());
     }
 }

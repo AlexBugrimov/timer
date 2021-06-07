@@ -3,8 +3,10 @@ package dev.bug.timer.services;
 import dev.bug.timer.info.TimerInfo;
 import dev.bug.timer.utils.TimerUtils;
 import org.quartz.Job;
+import org.quartz.JobKey;
 import org.quartz.Scheduler;
 import org.quartz.SchedulerException;
+import org.quartz.impl.matchers.GroupMatcher;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,6 +14,9 @@ import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
+import java.util.List;
+import java.util.Objects;
+import java.util.stream.Collectors;
 
 @Service
 public class SchedulerService {
@@ -35,6 +40,27 @@ public class SchedulerService {
         }
     }
 
+    public List<TimerInfo> getAllRunningTimers() {
+        try {
+            return scheduler.getJobKeys(GroupMatcher.anyGroup())
+                    .stream()
+                    .map(jobKey -> {
+                        try {
+                            var jobDetail = scheduler.getJobDetail(jobKey);
+                            return (TimerInfo) jobDetail.getJobDataMap().get(jobKey.getName());
+                        } catch (SchedulerException e) {
+                            LOG.error(e.getMessage(), e);
+                            return null;
+                        }
+                    })
+                    .filter(Objects::nonNull)
+                    .collect(Collectors.toList());
+        } catch (SchedulerException e) {
+            LOG.error(e.getMessage(), e);
+            return List.of();
+        }
+    }
+
     @PostConstruct
     public void init() {
         try {
@@ -50,6 +76,19 @@ public class SchedulerService {
             scheduler.shutdown();
         } catch (SchedulerException e) {
             LOG.error(e.getMessage(), e);
+        }
+    }
+
+    public TimerInfo getRunningTimer(String timerId) {
+        try {
+            var jobDetails = scheduler.getJobDetail(new JobKey(timerId));
+            if (Objects.isNull(jobDetails)) {
+                return null;
+            }
+            return (TimerInfo) jobDetails.getJobDataMap().get(timerId);
+        } catch (SchedulerException e) {
+            LOG.error(e.getMessage(), e);
+            return null;
         }
     }
 }
